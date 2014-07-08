@@ -1,0 +1,27 @@
+{
+	"name": "karwana/messageformat",
+	"type": "library",
+	"version": "1.0.0",
+	"license": "MIT",
+	"authors": [
+		{
+			"name": "Matthew Caruana Galizia",
+			"email": "mcg@karwana.com",
+			"role": "developer"
+		}
+	],
+	"autoload": {
+		"psr-4": {
+			"Karwana\\MessageFormat\\": "MessageFormat/"
+		}
+	},
+	"require": {
+		"php": ">=5.3.0",
+		"ext-intl": "~1.1.0",
+		"karwana/cache": "dev-master"
+	},
+	"require-dev": {
+		"phing/phing": "~2.8.1",
+		"phpunit/phpunit": "~4.1.3"
+	}
+}
