@@ -18,7 +18,7 @@
 	"require": {
 		"php": ">=5.3.0",
 		"ext-intl": "~1.1.0",
-		"karwana/cache": "dev-master"
+		"karwana/cache": "~1.0.0"
 	},
 	"require-dev": {
 		"phing/phing": "~2.8.1",
