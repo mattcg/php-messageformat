@@ -10,19 +10,42 @@ INI file parsing in PHP is much faster than YAML, although slightly slower but m
 
 ## Usage ##
 
+The `MessageFormat` constructor accepts three arguments: the path to directory where your INI files are kept, the locale name and an optional third argument, which is a chained `MessageFormat` instance that will be used as a fallback for nonexistent keys.
+
+### Using a single INI file with sections ###
+
 ```php
 
 use Karwana\MessageFormat\MessageFormat;
 
-$locale = 'en';
-$mf = new MessageFormat('/path/to/language/files/directory', $locale);
+$mf = new MessageFormat('/path/to/language/files/directory', 'en');
 
-// Assuming your en.ini file contains the following lines:
+// Assume en.ini contains the following:
 //
 // [my_domain]
 // my_key = "My mesage is \"{0}\"."
-//
+// my_other_key = "The colors of the rainbow."
+
 // The following line will print 'My message is "Hello".' to output.
 echo $mf->format('my_domain.my_key', array('Hello'));
 
 ```
+
+### Chaining multiple instances ###
+
+```php
+$mf = new MessageFormat($ini_dir, 'en-gb', new MessageFormat($ini_dir, 'en'));
+
+// Assume en-gb.ini contains the following:
+//
+// [my_domain]
+// my_other_key = "The colours of the rainbow."
+
+// The following line will print the British English message from en-gb.ini.
+echo $mf->format('my_domain.my_other_key');
+
+// The following line will print the fallback from en.ini.
+echo $mf->format('my_domain.my_key', array('Yo'));
+```
+
+With chaining, only the messages which vary in between language or regional variants need to be specified in each variant file. This saves you having to keep track of and repeat changes across multiple files.
