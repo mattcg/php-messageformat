@@ -19,15 +19,16 @@ class MessageFormat {
 
 	public static $cache;
 
-	private $messages, $locale, $language_file;
+	private $messages, $locale, $language_file, $link;
 
-	public function __construct($language_files, $locale) {
+	public function __construct($language_files, $locale, MessageFormat $link = null) {
 		if (!isset(self::$cache)) {
 			self::$cache = Cache::get();
 		}
 
 		$this->language_file = implode(DIRECTORY_SEPARATOR, array(rtrim($language_files, DIRECTORY_SEPARATOR), $locale . '.ini'));
 		$this->locale = $locale;
+		$this->link = $link;
 	}
 
 	private function ensureLoaded() {
@@ -49,31 +50,51 @@ class MessageFormat {
 		return $this->locale;
 	}
 
+	public function getLanguageFile() {
+		return $this->language_file;
+	}
+
+	public function getLink() {
+		return $this->link;
+	}
+
 	public function get($message_key) {
 		$this->ensureLoaded();
 
-		// Check for a domain key, which uses a period as a separator.
+		// Check for a section key, which uses a period as a separator.
 		$dot = strpos($message_key, '.');
 		if (false === $dot) {
-			if (!isset($this->messages[$message_key])) {
-				throw new \InvalidArgumentException('Unknown key "' . $message_key . '".');
+			if (isset($this->messages[$message_key])) {
+				return $this->messages[$message_key];
 			}
 
-			return $this->messages[$message_key];
+			if (isset($this->link)) {
+				return $this->link->get($message_key);
+			}
+
+			throw new \InvalidArgumentException('Unknown key "' . $message_key . '".');
 		}
 
-		$domain = substr($message_key, 0, $dot);
-		$message_key = substr($message_key, $dot + 1);
+		$section = substr($message_key, 0, $dot);
+		$sub_key = substr($message_key, $dot + 1);
 
-		if (!isset($this->messages[$domain])) {
-			throw new \InvalidArgumentException('Unknown domain "' . $domain . '".');
+		if (!isset($this->messages[$section])) {
+			if (isset($this->link)) {
+				return $this->link->get($message_key);
+			}
+
+			throw new \InvalidArgumentException('Unknown section "' . $section . '".');
 		}
 
-		if (!isset($this->messages[$domain][$message_key])) {
-			throw new \InvalidArgumentException('Unknown key "' . $message_key . '" in domain "' . $domain . '".');
+		if (isset($this->messages[$section][$sub_key])) {
+			return $this->messages[$section][$sub_key];
 		}
 
-		return $this->messages[$domain][$message_key];		
+		if (isset($this->link)) {
+			return $this->link->get($message_key);
+		}
+
+		throw new \InvalidArgumentException('Unknown key "' . $sub_key . '" in section "' . $section . '".');
 	}
 
 	public function format($message_key, $args) {

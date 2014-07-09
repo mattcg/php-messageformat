@@ -15,8 +15,17 @@ namespace Karwana\MessageFormat;
 
 class CacheTest extends \PHPUnit_Framework_TestCase {
 
+	private function getLanguageFilesDirectory() {
+		return implode(DIRECTORY_SEPARATOR, array(__DIR__, '..', 'data'));
+	}
+
 	private function getInstance() {
-		return new MessageFormat(implode(DIRECTORY_SEPARATOR, array(__DIR__, '..', 'data')), 'en');
+		return new MessageFormat($this->getLanguageFilesDirectory(), 'en');
+	}
+
+	private function getChainedInstance() {
+		$mf = $this->getInstance();
+		return new MessageFormat($this->getLanguageFilesDirectory(), 'en-gb', $mf);
 	}
 
 	public function testGetLocale_ReturnsLocale() {
@@ -24,19 +33,24 @@ class CacheTest extends \PHPUnit_Framework_TestCase {
 		$this->assertEquals('en', $mf->getLocale());
 	}
 
+	public function testGetLanguageFile_ReturnsLanguageFilePath() {
+		$mf = $this->getInstance();
+		$this->assertEquals($this->getLanguageFilesDirectory() . DIRECTORY_SEPARATOR . 'en.ini', $mf->getLanguageFile());
+	}
+
 	public function testGet_ReturnsMessageFormat() {
 		$mf = $this->getInstance();
 
-		// Test without domain.
+		// Test without section.
 		$this->assertEquals('MessageFormat Tests - {0}', $mf->get('application_name'));
 
-		// Test with domain.
+		// Test with section.
 		$this->assertEquals('{0,number,integer} thousand plants', $mf->get('plants.kingdom_size'));
 	}
 
-	public function testGet_ThrowsExceptionForBadDomain() {
+	public function testGet_ThrowsExceptionForBadSection() {
 		$mf = $this->getInstance();
-		$this->setExpectedException('InvalidArgumentException', 'Unknown domain "bananas".');
+		$this->setExpectedException('InvalidArgumentException', 'Unknown section "bananas".');
 		$mf->get('bananas.name');
 	}
 
@@ -46,20 +60,44 @@ class CacheTest extends \PHPUnit_Framework_TestCase {
 		$mf->get('dogs');
 	}
 
-	public function testGet_ThrowsExceptionForKeyInDomain() {
+	public function testGet_ThrowsExceptionForKeyInSection() {
 		$mf = $this->getInstance();
-		$this->setExpectedException('InvalidArgumentException', 'Unknown key "status" in domain "plants".');
+		$this->setExpectedException('InvalidArgumentException', 'Unknown key "status" in section "plants".');
 		$mf->get('plants.status');
 	}
 
 	public function testFormat_ReturnsMessage() {
 		$mf = $this->getInstance();
 
-		// Test without domain.
+		// Test without section.
 		$this->assertEquals('MessageFormat Tests - Winning at Life', $mf->format('application_name', array('Winning at Life')));
 
-		// Test with domain.
+		// Test with section.
 		$this->assertEquals('300 thousand plants', $mf->format('plants.kingdom_size', array(300)));
+	}
+
+	public function testGetLink_ReturnsChainedInstance() {
+		$mf = $this->getChainedInstance();
+		$this->assertEquals($this->getLanguageFilesDirectory() . DIRECTORY_SEPARATOR . 'en-gb.ini', $mf->getLanguageFile());
+		$this->assertEquals($this->getLanguageFilesDirectory() . DIRECTORY_SEPARATOR . 'en.ini', $mf->getLink()->getLanguageFile());
+	}
+
+	public function testGet_ReturnsMessageFormatFromLink() {
+		$mf = $this->getChainedInstance();
+
+		// Make sure it tries en-gb first.
+		$this->assertEquals('MessageFormat Tests: {0}', $mf->get('application_name'));
+		$this->assertEquals('Animalia', $mf->get('animals.kingdom_name'));
+
+		// Then falls back to en for non-existent keys.
+		$this->assertEquals('v1.0.0', $mf->get('application_version'));
+		$this->assertEquals('Plants', $mf->get('plants.kingdom_name'));
+	}
+
+	public function testGet_ThrowsExceptionForKeyWhenChained() {
+		$mf = $this->getChainedInstance();
+		$this->setExpectedException('InvalidArgumentException', 'Unknown key "dogs".');
+		$mf->get('dogs');
 	}
 
 	public function test_CacheIsUsed() {
