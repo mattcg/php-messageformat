@@ -8,7 +8,15 @@
 		<ini name="error_reporting" value="-1" />
 		<ini name="display_errors" value="1" />
 	</php>
-	<testsuite name="Cache Test Results">
-		<directory>./</directory>
+	<testsuite name="MessageFormat Tests">
+		<directory suffix="Test.php">./MessageFormat</directory>
 	</testsuite>
+	<logging>
+		<log type="coverage-html" target="./coverage/html" charset="UTF-8" />
+	</logging>
+	<filter>
+		<blacklist>
+			<directory>../vendor</directory>
+		</blacklist>
+	</filter>
 </phpunit>
