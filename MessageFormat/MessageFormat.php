@@ -85,15 +85,15 @@ class MessageFormat {
 			throw new \InvalidArgumentException('Unknown section "' . $section . '".');
 		}
 
-		if (isset($this->messages[$section][$sub_key])) {
-			return $this->messages[$section][$sub_key];
+		if (!isset($this->messages[$section][$sub_key])) {
+			if (isset($this->link)) {
+				return $this->link->get($message_key);
+			}
+
+			throw new \InvalidArgumentException('Unknown key "' . $sub_key . '" in section "' . $section . '".');
 		}
 
-		if (isset($this->link)) {
-			return $this->link->get($message_key);
-		}
-
-		throw new \InvalidArgumentException('Unknown key "' . $sub_key . '" in section "' . $section . '".');
+		return $this->messages[$section][$sub_key];
 	}
 
 	public function format($message_key, $args) {

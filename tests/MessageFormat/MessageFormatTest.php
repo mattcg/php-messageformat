@@ -77,8 +77,12 @@ class CacheTest extends \PHPUnit_Framework_TestCase {
 
 	public function testGetLink_ReturnsChainedInstance() {
 		$mf = $this->getChainedInstance();
+
 		$this->assertEquals($this->getLanguageFilesDirectory() . DIRECTORY_SEPARATOR . 'en-gb.ini', $mf->getLanguageFile());
+		$this->assertEquals('en-gb', $mf->getLocale());
+
 		$this->assertEquals($this->getLanguageFilesDirectory() . DIRECTORY_SEPARATOR . 'en.ini', $mf->getLink()->getLanguageFile());
+		$this->assertEquals('en', $mf->getLink()->getLocale());
 	}
 
 	public function testGet_ReturnsMessageFormatFromLink() {
@@ -86,11 +90,17 @@ class CacheTest extends \PHPUnit_Framework_TestCase {
 
 		// Make sure it tries en-gb first.
 		$this->assertEquals('MessageFormat Tests: {0}', $mf->get('application_name'));
+		$this->assertEquals('Animals', $mf->getLink()->get('animals.kingdom_name'));
 		$this->assertEquals('Animalia', $mf->get('animals.kingdom_name'));
 
 		// Then falls back to en for non-existent keys.
 		$this->assertEquals('v1.0.0', $mf->get('application_version'));
+		$this->assertEquals('Plants', $mf->getLink()->get('plants.kingdom_name'));
 		$this->assertEquals('Plants', $mf->get('plants.kingdom_name'));
+
+		// When the section is defined in en-gb, but the subkey only in en.
+		$this->assertEquals('{0,number,integer} thousand animals', $mf->getLink()->get('animals.kingdom_size'));
+		$this->assertEquals('{0,number,integer} thousand animals', $mf->get('animals.kingdom_size'));
 	}
 
 	public function testGet_ThrowsExceptionForKeyWhenChained() {
