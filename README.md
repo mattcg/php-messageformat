@@ -49,3 +49,7 @@ echo $mf->format('my_domain.my_key', array('Yo'));
 ```
 
 With chaining, only the messages which vary in between language or regional variants need to be specified in each variant file. This saves you having to keep track of and repeat changes across multiple files.
+
+## License ##
+
+See `LICENSE`.
