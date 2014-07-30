@@ -20,6 +20,14 @@ class MessageFormat {
 
 	private $messages, $locale, $language_file, $link;
 
+
+	/**
+	 * Construct a new MessageFormat instance.
+	 *
+	 * @param string $language_files Path to directory where language files are stored.
+	 * @param string $locale Must correspond to a file in the $language_files directory. For example, 'en' for 'en.ini'.
+	 * @param MessageFormat $link A MessageFormat instance to use in a fallback chain.
+	 */
 	public function __construct($language_files, $locale, MessageFormat $link = null) {
 		if (!isset(self::$cache)) {
 			self::$cache = Cache::get();
@@ -45,18 +53,44 @@ class MessageFormat {
 		}
 	}
 
+
+	/**
+	 * Gets the instance locale.
+	 *
+	 * @return string
+	 */
 	public function getLocale() {
 		return $this->locale;
 	}
 
+
+	/**
+	 * Gets the path to the instance's language file.
+	 *
+	 * @return string
+	 */
 	public function getLanguageFile() {
 		return $this->language_file;
 	}
 
+
+	/**
+	 * Gets the linked instance or null if none defined.
+	 *
+	 * @return MessageFormat|null
+	 */
 	public function getLink() {
 		return $this->link;
 	}
 
+
+	/**
+	 * Gets the raw value of a message.
+	 *
+	 * @param string $message_key
+	 *
+	 * @return string
+	 */
 	public function get($message_key) {
 		$this->ensureLoaded();
 
@@ -96,6 +130,15 @@ class MessageFormat {
 		return $this->messages[$section][$sub_key];
 	}
 
+
+	/**
+	 * Gets the formatted value of a message.
+	 *
+	 * @param string $message_key
+	 * @param array $args
+	 *
+	 * @return string
+	 */
 	public function format($message_key, $args) {
 		return \MessageFormatter::formatMessage($this->locale, $this->get($message_key), $args);
 	}
