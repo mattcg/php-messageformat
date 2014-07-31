@@ -1,5 +1,7 @@
 # MessageFormat #
 
+[![Build Status](https://travis-ci.org/karwana/php-messageformat.svg?branch=master)](https://travis-ci.org/karwana/php-messageformat)
+
 Fast and reliable message formatting using INI language files and [MessageFormatter](http://www.php.net/manual/en/class.messageformatter.php).
 
 Once language files are parsed, they're [serialized](http://www.php.net/manual/en/function.serialize.php) and cached using [Cache](https://github.com/karwana/php-cache).
