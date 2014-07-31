@@ -12,13 +12,11 @@
 
 namespace Karwana\MessageFormat;
 
-use Karwana\Cache\Cache;
+use Stash;
 
 class MessageFormat {
 
-	public static $cache;
-
-	private $messages, $locale, $language_file, $link;
+	private $messages, $locale, $language_file, $link, $cache;
 
 
 	/**
@@ -29,10 +27,6 @@ class MessageFormat {
 	 * @param MessageFormat $link A MessageFormat instance to use in a fallback chain.
 	 */
 	public function __construct($language_files, $locale, MessageFormat $link = null) {
-		if (!isset(self::$cache)) {
-			self::$cache = Cache::get();
-		}
-
 		$this->language_file = implode(DIRECTORY_SEPARATOR, array(rtrim($language_files, DIRECTORY_SEPARATOR), $locale . '.ini'));
 		$this->locale = $locale;
 		$this->link = $link;
@@ -43,14 +37,40 @@ class MessageFormat {
 			return;
 		}
 
-		$cache_key = 'messageformat:' . $this->language_file;
+		if (isset($this->cache)) {
+			$cache_item = $this->cache->getItem('karwana/messageformat/' . $this->language_file);
+			$this->messages = $cache_item->get();
 
-		if (self::$cache->hasItem($cache_key)) {
-			$this->messages = self::$cache->getItem($cache_key);
-		} else {
-			$this->messages = parse_ini_file($this->language_file, true);
-			self::$cache->setItem($cache_key, $this->messages);
+			if (!$cache_item->isMiss()) {
+				return;
+			}
 		}
+
+		$this->messages = parse_ini_file($this->language_file, true);
+
+		if (isset($this->cache)) {
+			$cache_item->set($this->messages);
+		}
+	}
+
+
+	/**
+	 * Set the cache pool.
+	 *
+	 * @param Stash\Interfaces\PoolInterface $pool
+	 */
+	public function setCache(Stash\Interfaces\PoolInterface $pool) {
+		$this->cache = $pool;
+	}
+
+
+	/**
+	 * Get the cache pool.
+	 *
+	 * @return Stash\Interfaces\PoolInterface
+	 */
+	public function getCache() {
+		return $this->cache;
 	}
 
 

@@ -12,7 +12,7 @@
 
 namespace Karwana\MessageFormat;
 
-class CacheTest extends \PHPUnit_Framework_TestCase {
+class MessageFormatTest extends \PHPUnit_Framework_TestCase {
 
 	private function getLanguageFilesDirectory() {
 		return implode(DIRECTORY_SEPARATOR, array(__DIR__, '..', 'data'));
@@ -107,16 +107,5 @@ class CacheTest extends \PHPUnit_Framework_TestCase {
 		$mf = $this->getChainedInstance();
 		$this->setExpectedException('InvalidArgumentException', 'Unknown key "dogs".');
 		$mf->get('dogs');
-	}
-
-	public function test_CacheIsUsed() {
-		$mf_a = $this->getInstance();
-		$cache_a = $mf_a::$cache;
-
-		$mf_b = $this->getInstance();
-		$cache_b = $mf_b::$cache;
-
-		$this->assertNotSame($mf_b, $mf_a);
-		$this->assertSame($cache_b, $cache_a);
 	}
 }
