@@ -52,6 +52,14 @@ echo $mf->format('my_domain.my_key', array('Yo'));
 
 With chaining, only the messages which vary in between language or regional variants need to be specified in each variant file. This saves you having to keep track of and repeat changes across multiple files.
 
+### Caching parsed INI files ###
+
+For large projects, parsing INI files can be a bottleneck which you can avoid by using [Stash](https://github.com/tedious/Stash) caching.
+
+```php
+$mf->setCache($new Stash\Pool($my_stash_driver));
+```
+
 ## License ##
 
 See `LICENSE`.
