@@ -38,7 +38,7 @@ class MessageFormat {
 		}
 
 		if (isset($this->cache)) {
-			$cache_item = $this->cache->getItem('karwana/messageformat/' . $this->language_file);
+			$cache_item = $this->cache->getItem($this->getCacheKey());
 			$this->messages = $cache_item->get();
 
 			if (!$cache_item->isMiss()) {
@@ -51,6 +51,16 @@ class MessageFormat {
 		if (isset($this->cache)) {
 			$cache_item->set($this->messages);
 		}
+	}
+
+
+	/**
+	 * Get the cache key.
+	 *
+	 * @return string
+	 */
+	public function getCacheKey() {
+		return 'karwana/messageformat' . $this->language_file;
 	}
 
 

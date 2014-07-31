@@ -12,10 +12,12 @@
 
 namespace Karwana\MessageFormat;
 
+use Stash;
+
 class MessageFormatTest extends \PHPUnit_Framework_TestCase {
 
 	private function getLanguageFilesDirectory() {
-		return implode(DIRECTORY_SEPARATOR, array(__DIR__, '..', 'data'));
+		return realpath(implode(DIRECTORY_SEPARATOR, array(__DIR__, '..', 'data')));
 	}
 
 	private function getInstance() {
@@ -107,5 +109,38 @@ class MessageFormatTest extends \PHPUnit_Framework_TestCase {
 		$mf = $this->getChainedInstance();
 		$this->setExpectedException('InvalidArgumentException', 'Unknown key "dogs".');
 		$mf->get('dogs');
+	}
+
+	public function testSetCache_SetsCachePool() {
+		$cache = new Stash\Pool();
+
+		$mf = $this->getInstance();
+		$this->assertNull($mf->getCache());
+		$mf->setCache($cache);
+		$this->assertEquals($cache, $mf->getCache());
+	}
+
+	public function testGetCacheKey() {
+		$mf = $this->getInstance();
+		$this->assertEquals('karwana/messageformat' . $this->getLanguageFilesDirectory() . DIRECTORY_SEPARATOR . 'en.ini', $mf->getCacheKey());
+	}
+
+	public function testEnsureLoaded_SetsCache() {
+		$mf = $this->getInstance();
+
+		$cache = new Stash\Pool();
+		$cache_key = $mf->getCacheKey();
+
+		$mf->setCache($cache);
+
+		$cache_item = $cache->getItem($cache_key);
+		$this->assertNull($cache_item->get());
+		$this->assertTrue($cache_item->isMiss());
+
+		// Trigger a load of the cache.
+		$this->assertEquals('Plants', $mf->get('plants.kingdom_name'));
+
+		$this->assertNotNull($cache_item->get());
+		$this->assertFalse($cache_item->isMiss());
 	}
 }
