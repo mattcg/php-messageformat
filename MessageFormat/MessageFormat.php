@@ -115,8 +115,8 @@ class MessageFormat {
 		$this->ensureLoaded();
 
 		// Check for a section key, which uses a period as a separator.
-		$dot = strpos($message_key, '.');
-		if (false === $dot) {
+		$separator = strpos($message_key, '.');
+		if (false === $separator) {
 			if (isset($this->messages[$message_key])) {
 				return $this->messages[$message_key];
 			}
@@ -128,26 +128,22 @@ class MessageFormat {
 			throw new \InvalidArgumentException('Unknown key "' . $message_key . '".');
 		}
 
-		$section = substr($message_key, 0, $dot);
-		$sub_key = substr($message_key, $dot + 1);
+		$section = substr($message_key, 0, $separator);
+		$sub_key = substr($message_key, $separator + 1);
+
+		if (isset($this->messages[$section][$sub_key])) {
+			return $this->messages[$section][$sub_key];
+		}
+
+		if (isset($this->link)) {
+			return $this->link->get($message_key);
+		}
 
 		if (!isset($this->messages[$section])) {
-			if (isset($this->link)) {
-				return $this->link->get($message_key);
-			}
-
 			throw new \InvalidArgumentException('Unknown section "' . $section . '".');
 		}
 
-		if (!isset($this->messages[$section][$sub_key])) {
-			if (isset($this->link)) {
-				return $this->link->get($message_key);
-			}
-
-			throw new \InvalidArgumentException('Unknown key "' . $sub_key . '" in section "' . $section . '".');
-		}
-
-		return $this->messages[$section][$sub_key];
+		throw new \InvalidArgumentException('Unknown key "' . $sub_key . '" in section "' . $section . '".');
 	}
 
 
