@@ -4,7 +4,7 @@
 
 Fast and reliable message formatting using INI language files and [MessageFormatter](http://www.php.net/manual/en/class.messageformatter.php).
 
-Once language files are parsed, they're [serialized](http://www.php.net/manual/en/function.serialize.php) and cached using [Cache](https://github.com/karwana/php-cache).
+Supports caching of [serialized](http://www.php.net/manual/en/function.serialize.php) language files using [Stash](https://github.com/tedious/Stash).
 
 ## Why INI? ##
 
@@ -57,7 +57,7 @@ With chaining, only the messages which vary in between language or regional vari
 For large projects, parsing INI files can be a bottleneck which you can avoid by using [Stash](https://github.com/tedious/Stash) caching.
 
 ```php
-$mf->setCache($new Stash\Pool($my_stash_driver));
+$mf->setCache(new Stash\Pool($my_stash_driver));
 ```
 
 ## License ##
