@@ -1,7 +1,7 @@
 {
 	"name": "karwana/messageformat",
 	"type": "library",
-	"version": "1.2.0",
+	"version": "1.2.1",
 	"license": "MIT",
 	"authors": [
 		{
