@@ -105,6 +105,24 @@ class MessageFormat {
 
 
 	/**
+	 * Set a MessageFormat instance to use in a fallback chain.
+	 *
+	 * @param MessageFormat $link
+	 */
+	public function setLink(MessageFormat $link) {
+		$this->link = $link;
+	}
+
+
+	/**
+	 * Remove the linked instance.
+	 */
+	public function removeLink() {
+		$this->link = null;
+	}
+
+
+	/**
 	 * Gets the linked instance or null if none defined.
 	 *
 	 * @return MessageFormat|null
